@@ -1,0 +1,667 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }body {
+  min-height: 100vh;
+  font-family: "Poppins", Arial, sans-serif;
+  color: #68475f;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fff1f7, #f4e8ff, #fff7df);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.95), transparent 18%),
+    radial-gradient(circle at 80% 15%, rgba(255, 213, 235, 0.7), transparent 24%),
+    radial-gradient(circle at 18% 82%, rgba(225, 204, 255, 0.65), transparent 26%),
+    radial-gradient(circle at 82% 78%, rgba(255, 236, 185, 0.7), transparent 25%);
+  z-index: -3;
+}
+
+.soft-blob {
+  position: fixed;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.32);
+  filter: blur(10px);
+  animation: blobMove 10s ease-in-out infinite alternate;
+  z-index: -2;
+}
+
+.soft-blob.one { top: -120px; left: -90px; }
+.soft-blob.two { bottom: -150px; right: -100px; animation-delay: 1.4s; }
+
+.scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 26px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(25px) scale(0.98);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scene.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.panel {
+  width: min(920px, 92vw);
+  min-height: 520px;
+  padding: clamp(28px, 5vw, 56px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 36px;
+  background: rgba(255, 255, 255, 0.44);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 30px 90px rgba(145, 83, 127, 0.18);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 18px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+  color: #ae6293;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 800;
+  box-shadow: 0 10px 30px rgba(145, 83, 127, 0.08);
+}
+
+h1, h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #7c416f;
+  line-height: 1.07;
+  text-shadow: 0 8px 28px rgba(255, 255, 255, 0.95);
+}
+
+h1 {
+  font-size: clamp(3.2rem, 10vw, 7.2rem);
+  animation: softZoom 3.8s ease-in-out infinite alternate;
+}
+
+h2 {
+  font-size: clamp(2rem, 7vw, 4.7rem);
+}
+
+p {
+  width: min(720px, 100%);
+  margin: 22px auto 0;
+  font-size: clamp(1rem, 2.2vw, 1.35rem);
+  line-height: 1.8;
+  color: #79566f;
+}
+
+.gold { color: #b88746; }
+
+.btn {
+  margin-top: 34px;
+  border: none;
+  cursor: pointer;
+  padding: 15px 26px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f4d5e8, #eee1ff, #fff0c9);
+  color: #7c416f;
+  font-size: 1rem;
+  font-weight: 900;
+  box-shadow: 0 18px 45px rgba(145, 83, 127, 0.18);
+  transition: 0.25s ease;
+}
+
+.btn:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 22px 55px rgba(145, 83, 127, 0.24);
+}
+
+.small-btn {
+  margin-top: 20px;
+  padding: 12px 20px;
+  font-size: 0.92rem;
+}
+
+.music-player {
+  position: fixed;
+  left: 22px;
+  bottom: 22px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.48);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 45px rgba(145, 83, 127, 0.18);
+  color: #7c416f;
+  font-weight: 800;
+  font-size: 0.86rem;
+}
+
+.music-player button {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 9px 13px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f3d3e7, #eee0ff, #fff1cf);
+  color: #7c416f;
+  font-weight: 900;
+  box-shadow: 0 10px 25px rgba(145, 83, 127, 0.15);
+}
+
+.progress {
+  position: fixed;
+  right: 22px;
+  bottom: 26px;
+  z-index: 60;
+  color: rgba(104, 71, 95, 0.7);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.floating {
+  position: fixed;
+  pointer-events: none;
+  user-select: none;
+  z-index: -1;
+  opacity: 0.75;
+  filter: drop-shadow(0 10px 18px rgba(145, 83, 127, 0.15));
+  animation: float 6s ease-in-out infinite;
+}
+
+.f1 { top: 12%; left: 10%; font-size: 2rem; animation-delay: 0s; }
+.f2 { top: 18%; right: 14%; font-size: 2.4rem; animation-delay: 1s; }
+.f3 { bottom: 16%; left: 14%; font-size: 2.2rem; animation-delay: 1.8s; }
+.f4 { bottom: 18%; right: 12%; font-size: 2rem; animation-delay: 2.5s; }
+.f5 { top: 52%; left: 5%; font-size: 1.7rem; animation-delay: 0.7s; }
+.f6 { top: 50%; right: 6%; font-size: 1.8rem; animation-delay: 2.1s; }
+
+.cake-wrap {
+  margin: 20px auto 10px;
+  width: min(360px, 80vw);
+  height: 280px;
+  position: relative;
+  animation: cakePop 1s ease both;
+}
+
+.cake {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 280px;
+  height: 160px;
+}
+
+.cake-layer {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 28px 28px 20px 20px;
+  box-shadow: 0 18px 35px rgba(145, 83, 127, 0.16);
+}
+
+.cake-bottom {
+  bottom: 0;
+  width: 280px;
+  height: 82px;
+  background: linear-gradient(180deg, #ffd4e7, #f5a7ca);
+}
+
+.cake-top {
+  bottom: 68px;
+  width: 220px;
+  height: 70px;
+  background: linear-gradient(180deg, #fff0c9, #ffdca9);
+}
+
+.icing {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background: #fff7fb;
+  border-radius: 28px 28px 45% 45%;
+}
+
+.candle {
+  position: absolute;
+  bottom: 136px;
+  width: 14px;
+  height: 54px;
+  border-radius: 8px;
+  background: repeating-linear-gradient(45deg, #fff, #fff 7px, #cda8ff 7px, #cda8ff 14px);
+}
+
+.candle.one { left: 103px; }
+.candle.two { left: 133px; height: 64px; }
+.candle.three { left: 163px; }
+
+.flame {
+  position: absolute;
+  left: 50%;
+  top: -24px;
+  width: 17px;
+  height: 25px;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+  background: radial-gradient(circle at 50% 65%, #fff7a6 0 25%, #ffc35a 45%, #ff8b8b 80%);
+  box-shadow: 0 0 22px rgba(255, 195, 90, 0.9);
+  animation: flameFlicker 0.9s ease-in-out infinite alternate;
+}
+
+.wish-made .flame {
+  animation: blowOut 0.45s ease forwards;
+}
+
+.sprinkle {
+  position: absolute;
+  width: 22px;
+  height: 6px;
+  border-radius: 999px;
+  background: #fff;
+  opacity: 0.85;
+}
+
+.sprinkle.a { left: 60px; bottom: 42px; transform: rotate(22deg); }
+.sprinkle.b { left: 126px; bottom: 24px; transform: rotate(-18deg); }
+.sprinkle.c { left: 194px; bottom: 50px; transform: rotate(15deg); }
+.sprinkle.d { left: 84px; bottom: 104px; transform: rotate(-14deg); }
+.sprinkle.e { left: 154px; bottom: 96px; transform: rotate(18deg); }
+
+.envelope-wrap {
+  height: 300px;
+  display: grid;
+  place-items: center;
+  perspective: 900px;
+}
+
+.envelope {
+  position: relative;
+  width: min(390px, 78vw);
+  height: 230px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  animation: envelopeFloat 3s ease-in-out infinite;
+}
+
+.env-back {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f6d7e8, #fff3d3);
+  box-shadow: 0 24px 60px rgba(145, 83, 127, 0.22);
+}
+
+.env-front {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, transparent 49%, rgba(255,255,255,0.45) 50%),
+    linear-gradient(225deg, transparent 49%, rgba(255,255,255,0.45) 50%),
+    linear-gradient(135deg, #f2c7dd, #fff1ca);
+  clip-path: polygon(0 38%, 50% 72%, 100% 38%, 100% 100%, 0 100%);
+  z-index: 3;
+}
+
+.env-flap {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #f0bfd8, #ffe9bd);
+  clip-path: polygon(0 0, 100% 0, 50% 62%);
+  transform-origin: top;
+  transition: transform 0.85s ease;
+  z-index: 4;
+  border-radius: 18px 18px 0 0;
+}
+
+.letter {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  width: 82%;
+  min-height: 165px;
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 45px rgba(145, 83, 127, 0.16);
+  transform: translateX(-50%) translateY(35px);
+  transition: transform 0.85s ease 0.15s;
+  z-index: 2;
+}
+
+.envelope.open .env-flap {
+  transform: rotateX(180deg);
+}
+
+.envelope.open .letter {
+  transform: translateX(-50%) translateY(-108px);
+}
+
+.letter h3 {
+  color: #7c416f;
+  font-size: 1.75rem;
+  margin-bottom: 10px;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.message-card {
+  width: min(720px, 100%);
+  margin: 26px auto 0;
+  min-height: 250px;
+  display: grid;
+  place-items: center;
+  padding: clamp(24px, 5vw, 46px);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 24px 60px rgba(145, 83, 127, 0.14);
+  animation: cardIn 0.65s ease both;
+}
+
+.message-card h2 {
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
+}
+
+.message-number {
+  margin-top: 22px;
+  color: rgba(104, 71, 95, 0.62);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.confetti-piece {
+  position: fixed;
+  top: -20px;
+  width: 10px;
+  height: 16px;
+  border-radius: 3px;
+  z-index: 80;
+  animation: confettiFall 2.8s linear forwards;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes blobMove {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(80px, 50px) scale(1.13); }
+}
+
+@keyframes softZoom {
+  from { transform: scale(1); }
+  to { transform: scale(1.035); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-24px) rotate(8deg); }
+}
+
+@keyframes cakePop {
+  from { opacity: 0; transform: translateY(35px) scale(0.82); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes flameFlicker {
+  from { transform: translateX(-50%) scale(0.9) rotate(-3deg); }
+  to { transform: translateX(-50%) scale(1.12) rotate(4deg); }
+}
+
+@keyframes blowOut {
+  to { opacity: 0; transform: translateX(-50%) translateY(12px) scale(0.2); }
+}
+
+@keyframes envelopeFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes confettiFall {
+  to { transform: translateY(105vh) rotate(720deg); opacity: 0.9; }
+}
+
+@media (max-width: 650px) {
+  .panel {
+    min-height: 520px;
+    border-radius: 28px;
+  }
+
+  .music-player {
+    left: 50%;
+    bottom: 15px;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    padding: 9px 10px;
+  }
+
+  .progress {
+    right: 14px;
+    top: 16px;
+    bottom: auto;
+    font-size: 0.78rem;
+  }
+
+  .f5, .f6 {
+    display: none;
+  }
+
+  .cake {
+    transform: translateX(-50%) scale(0.86);
+  }
+}
+
+  </style>
+</head>
+<body>
+  <audio id="bgMusic" loop>
+    <source src="those-eyes.mp3" type="audio/mpeg" />
+  </audio>  <div class="soft-blob one"></div>
+  <div class="soft-blob two"></div><span class="floating f1">✦</span> <span class="floating f2">✿</span> <span class="floating f3">✧</span> <span class="floating f4">🦋</span> <span class="floating f5">✦</span> <span class="floating f6">✿</span>
+
+  <div class="music-player">
+    <button id="musicBtn" type="button">▶ Play music</button>
+    <span>Soft background music</span>
+  </div>  <div class="progress" id="progressText">1 / 8</div>  <section class="scene active" id="sceneIntro">
+    <div class="panel">
+      <span class="eyebrow">A little surprise</span>
+      <h1>Happy Birthday</h1>
+      <p>Something simple, soft, and made to make this day feel a little more special.</p>
+      <button class="btn" onclick="goToScene(1)">Tap to begin ✨</button>
+    </div>
+  </section>  <section class="scene" id="sceneCake">
+    <div class="panel">
+      <span class="eyebrow">Step one</span>
+      <h2>Make a wish</h2>
+      <div class="cake-wrap" id="cakeWrap">
+        <div class="cake">
+          <div class="candle one"><span class="flame"></span></div>
+          <div class="candle two"><span class="flame"></span></div>
+          <div class="candle three"><span class="flame"></span></div>
+          <div class="cake-layer cake-top"><span class="icing"></span></div>
+          <div class="cake-layer cake-bottom"><span class="icing"></span></div>
+          <span class="sprinkle a"></span>
+          <span class="sprinkle b"></span>
+          <span class="sprinkle c"></span>
+          <span class="sprinkle d"></span>
+          <span class="sprinkle e"></span>
+        </div>
+      </div>
+      <p>Take a tiny moment, make a wish, then open your birthday card.</p>
+      <button class="btn small-btn" id="wishBtn">Make a wish ✨</button>
+      <button class="btn small-btn hidden" id="openCardBtn" onclick="goToScene(2)">Open the card</button>
+    </div>
+  </section>  <section class="scene" id="sceneEnvelope">
+    <div class="panel">
+      <span class="eyebrow">For you</span>
+      <h2>A small birthday card</h2>
+      <div class="envelope-wrap">
+        <div class="envelope" id="envelope">
+          <div class="env-back"></div>
+          <div class="letter">
+            <h3>For You</h3>
+            <p>Hope this brings a small smile to your day.</p>
+          </div>
+          <div class="env-front"></div>
+          <div class="env-flap"></div>
+        </div>
+      </div>
+      <button class="btn small-btn" id="envelopeBtn">Open envelope</button>
+      <button class="btn small-btn hidden" id="readBtn" onclick="goToScene(3)">Read the messages</button>
+    </div>
+  </section>  <section class="scene" id="sceneMessages">
+    <div class="panel">
+      <span class="eyebrow">Birthday notes</span>
+      <div class="message-card" id="messageCard">
+        <h2 id="messageText">Today is all about you</h2>
+      </div>
+      <div class="message-number" id="messageNumber">1 / 5</div>
+      <button class="btn small-btn" id="nextMessageBtn">Next</button>
+    </div>
+  </section>  <section class="scene" id="sceneFinal">
+    <div class="panel">
+      <span class="eyebrow">Final wish</span>
+      <h1>Happy Birthday, <span class="gold">Shining Star</span></h1>
+      <p>Wishing you a lovely birthday and a year full of happiness, success, beautiful moments, and reasons to smile.</p>
+      <button class="btn" id="finalConfettiBtn">One last sparkle ✨</button>
+    </div>
+  </section>  <script>
+    const scenes = document.querySelectorAll(".scene");
+    const progressText = document.getElementById("progressText");
+    const music = document.getElementById("bgMusic");
+    const musicBtn = document.getElementById("musicBtn");
+    const wishBtn = document.getElementById("wishBtn");
+    const openCardBtn = document.getElementById("openCardBtn");
+    const cakeWrap = document.getElementById("cakeWrap");
+    const envelope = document.getElementById("envelope");
+    const envelopeBtn = document.getElementById("envelopeBtn");
+    const readBtn = document.getElementById("readBtn");
+    const messageText = document.getElementById("messageText");
+    const messageNumber = document.getElementById("messageNumber");
+    const nextMessageBtn = document.getElementById("nextMessageBtn");
+    const messageCard = document.getElementById("messageCard");
+    const finalConfettiBtn = document.getElementById("finalConfettiBtn");
+
+    let currentScene = 0;
+    let currentMessage = 0;
+
+    const messages = [
+      "Today is all about you",
+      "You are more amazing than you think",
+      "Believe in yourself, always",
+      "Your smile brings a beautiful energy",
+      "Keep shining, keep dreaming, keep being you"
+    ];
+
+    music.volume = 0.45;
+
+    function goToScene(index) {
+      scenes[currentScene].classList.remove("active");
+      currentScene = index;
+      scenes[currentScene].classList.add("active");
+      progressText.textContent = `${currentScene + 1} / ${scenes.length + messages.length - 1}`;
+    }
+
+    function launchConfetti(amount = 45) {
+      const colors = ["#f5a7ca", "#cda8ff", "#ffdca9", "#ffffff", "#b88746"];
+
+      for (let i = 0; i < amount; i++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = 2 + Math.random() * 1.8 + "s";
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 4000);
+      }
+    }
+
+    musicBtn.addEventListener("click", async () => {
+      try {
+        if (music.paused) {
+          await music.play();
+          musicBtn.textContent = "❚❚ Pause music";
+        } else {
+          music.pause();
+          musicBtn.textContent = "▶ Play music";
+        }
+      } catch (error) {
+        musicBtn.textContent = "Tap again to play";
+      }
+    });
+
+    wishBtn.addEventListener("click", () => {
+      cakeWrap.classList.add("wish-made");
+      launchConfetti(55);
+      wishBtn.classList.add("hidden");
+      openCardBtn.classList.remove("hidden");
+    });
+
+    envelopeBtn.addEventListener("click", () => {
+      envelope.classList.add("open");
+      envelopeBtn.classList.add("hidden");
+      readBtn.classList.remove("hidden");
+    });
+
+    nextMessageBtn.addEventListener("click", () => {
+      currentMessage++;
+
+      if (currentMessage >= messages.length) {
+        launchConfetti(55);
+        goToScene(4);
+        return;
+      }
+
+      messageCard.style.animation = "none";
+      messageCard.offsetHeight;
+      messageCard.style.animation = "cardIn 0.65s ease both";
+      messageText.textContent = messages[currentMessage];
+      messageNumber.textContent = `${currentMessage + 1} / ${messages.length}`;
+      progressText.textContent = `${4 + currentMessage} / ${scenes.length + messages.length - 1}`;
+    });
+
+    finalConfettiBtn.addEventListener("click", () => {
+      launchConfetti(80);
+    });
+  </script></body>
+</html>
