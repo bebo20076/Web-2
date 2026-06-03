@@ -501,7 +501,7 @@ p {
   <div class="music-player">
     <button id="musicBtn" type="button">▶ Play music</button>
     <span>Soft background music</span>
-  </div>  <div class="progress" id="progressText">1 / 8</div>  <section class="scene active" id="sceneIntro">
+  </div>  <div class="progress" id="progressText">1 / 9</div>  <section class="scene active" id="sceneIntro">
     <div class="panel">
       <span class="eyebrow">A little surprise</span>
       <h1>Happy Birthday</h1>
@@ -649,6 +649,8 @@ p {
       if (currentMessage >= messages.length) {
         launchConfetti(55);
         goToScene(4);
+        const total = scenes.length + messages.length - 1;
+        progressText.textContent = `${total} / ${total}`;
         return;
       }
 
