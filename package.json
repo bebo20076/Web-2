@@ -1,0 +1,12 @@
+{
+  "name": "video-studio",
+  "version": "0.1.0",
+  "description": "Video editing studio with HyperFrames motion graphics",
+  "private": true,
+  "dependencies": {
+    "hyperframes": "latest"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
