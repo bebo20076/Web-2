@@ -1,4 +1,4 @@
-"""Ctrl+Bebo keyboard stinger: 1920x1080 @ 60fps, 1.5 s, on #00FF00.
+"""Ctrl+Bebo keyboard stinger: 1920x1080 @ 60fps, 1.5 s x SLOW, on #00FF00.
 
 Renders a top-down mechanical keyboard that slides through the frame along a
 10-degree diagonal, a red wave sweeping right-to-left while it covers the frame,
@@ -20,7 +20,8 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else "out"
 FRAMES = os.path.join(OUT, "frames")
 os.makedirs(FRAMES, exist_ok=True)
 
-W, H, FPS, DUR = 1920, 1080, 60, 1.5
+SLOW = 1.6                    # timing stretch vs. the original 1.5 s cut
+W, H, FPS, DUR = 1920, 1080, 60, 1.5 * SLOW
 NF = int(round(FPS * DUR))
 THETA = math.radians(10.0)
 SHUTTER = 0.75  # fraction of a frame the virtual shutter is open
@@ -168,9 +169,9 @@ PREMULT = TEX_RGB * TEX_A[..., None]
 # ---------------------------------------------------------------- motion ----
 # s(t): along-axis offset of the Ctrl|Bebo anchor from frame centre.
 # Fast slam in, slow glide while covering, fast zip out.
-KEYS_T = [0.0, 0.5, 0.7, 0.9, 1.5]
+KEYS_T = [x * SLOW for x in (0.0, 0.5, 0.7, 0.9, 1.5)]
 KEYS_S = [2950.0, 300.0, 0.0, -320.0, -5100.0]
-KEYS_V = [-9500.0, -1700.0, -1500.0, -1800.0, -13500.0]
+KEYS_V = [v / SLOW for v in (-9500.0, -1700.0, -1500.0, -1800.0, -13500.0)]
 
 def s_at(t):
     t = min(max(t, 0.0), DUR)
@@ -200,7 +201,7 @@ def key_screen_x(t):
     return KCENT[:, 0] * M[0, 0] + KCENT[:, 1] * M[0, 1] + M[0, 2]
 
 # ------------------------------------------------------------------ wave ----
-W_T0, W_T1, W_X0, W_X1 = 0.5, 0.86, 2150.0, -250.0
+W_T0, W_T1, W_X0, W_X1 = 0.5 * SLOW, 0.86 * SLOW, 2150.0, -250.0
 
 def wave_x(t):
     return W_X0 + (t - W_T0) / (W_T1 - W_T0) * (W_X1 - W_X0)
@@ -211,7 +212,7 @@ def smooth(a, b, x):
 
 def hit_time(i):
     """time the wave front reaches key i (None if never)"""
-    for t in np.arange(W_T0, W_T1 + 0.05, 0.001):
+    for t in np.arange(W_T0, W_T1 + 0.05 * SLOW, 0.001):
         if key_screen_x(t)[i] >= wave_x(t):
             return float(t)
     return None
@@ -224,11 +225,11 @@ def key_intensity(t):
     ahead = np.exp(-(d / 120.0) ** 2)
     behind = np.exp(-np.maximum(d, 0) / 600.0)
     I = np.where(d < 0, ahead, behind)
-    I *= (t > W_T0 - 0.02)
-    I *= 1 - smooth(0.84, 0.98, t)
+    I *= (t > W_T0 - 0.02 * SLOW)
+    I *= 1 - smooth(0.84 * SLOW, 0.98 * SLOW, t)
     brand = IS_BRAND[1:]
     lit = t >= T_HIT
-    hold = lit * (1 - smooth(0.92, 1.12, t)) * (1 + 0.6 * np.exp(-((t - T_HIT) / 0.035) ** 2))
+    hold = lit * (1 - smooth(0.92 * SLOW, 1.12 * SLOW, t)) * (1 + 0.6 * np.exp(-((t - T_HIT) / (0.035 * SLOW)) ** 2))
     I = np.where(brand, np.maximum(I, hold), I)
     return np.concatenate([[0.0], I]).astype(np.float32)
 
@@ -331,13 +332,13 @@ noise = rng.standard_normal(NS)
 y = np.zeros(NS)
 z1 = z2 = 0.0
 for n_ in range(NS):  # state-variable filter, time varying cutoff
-    fc = 250 + 3200 * sp[n_] ** 1.3
+    fc = 220 + 2600 * sp[n_] ** 1.3
     fq = 2 * math.sin(math.pi * fc / SR)
     hp_ = noise[n_] - z2 - 0.9 * z1
     z1 += fq * hp_
     z2 += fq * z1
     y[n_] = z1
-env = sp ** 1.6 * smooth(0.0, 0.05, tt) * (1 - smooth(1.38, 1.5, tt))
+env = sp ** 1.6 * smooth(0.0, 0.05, tt) * (1 - smooth(DUR - 0.15, DUR, tt))
 wh = y / np.abs(y).max() * env * 0.9
 # pan follows the keyboard's along-axis centre
 kb_center_x = np.array([W / 2 + (s_at(t) + (TW / 2 - ANCHOR[0])) * E[0] for t in tt[::48]])
@@ -354,8 +355,8 @@ with wave.open(os.path.join(OUT, "audio.wav"), "wb") as wf:
     wf.writeframes((st * 32767).astype("<i2").tobytes())
 
 # ---------------------------------------------------------------- encode ----
-mid = [coverage[f] for f in range(NF) if 0.5 <= f / FPS <= 0.9]
-print("max non-covered px during 0.5-0.9s:", max(mid))
+mid = [coverage[f] for f in range(NF) if 0.5 * SLOW <= f / FPS <= 0.9 * SLOW]
+print("max non-covered px during cover window:", max(mid))
 print("first frame non-covered:", coverage[0], "last:", coverage[-1], "of", W * H)
 
 subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(FRAMES, "%04d.png"),
