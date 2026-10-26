@@ -29,7 +29,9 @@ SHUTTER = 0.75  # fraction of a frame the virtual shutter is open
 def hexrgb(h):
     return np.array([int(h[i:i + 2], 16) for i in (1, 3, 5)], np.float32) / 255.0
 
-GREEN = hexrgb("#00FF00")
+BG_HEX = os.environ.get("BG", "#00FF00")   # e.g. BG=#808080 for a grey background
+BG_NAME = os.environ.get("BG_NAME", "green")
+GREEN = hexrgb(BG_HEX)
 KEYCAP = "#1A1A1D"
 LEGEND = "#F5F5F5"
 RED = hexrgb("#E8283C")
@@ -362,9 +364,9 @@ print("first frame non-covered:", coverage[0], "last:", coverage[-1], "of", W * 
 subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(FRAMES, "%04d.png"),
                 "-i", os.path.join(OUT, "audio.wav"), "-c:v", "libx264", "-preset", "slow", "-crf", "12",
                 "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "320k", "-movflags", "+faststart",
-                os.path.join(OUT, "CtrlBebo_stinger_green_1080p60.mp4")], check=True)
+                os.path.join(OUT, f"CtrlBebo_stinger_{BG_NAME}_1080p60.mp4")], check=True)
 subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(FRAMES, "%04d.png"),
                 "-i", os.path.join(OUT, "audio.wav"), "-c:v", "prores_ks", "-profile:v", "3",
                 "-pix_fmt", "yuv422p10le", "-c:a", "pcm_s16le",
-                os.path.join(OUT, "CtrlBebo_stinger_green_1080p60_ProRes.mov")], check=True)
+                os.path.join(OUT, f"CtrlBebo_stinger_{BG_NAME}_1080p60_ProRes.mov")], check=True)
 print("done")
